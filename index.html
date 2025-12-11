@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 越南胡志明之旅</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #F9F7F2;
+            --card-bg: #FFFFFF;
+            --text-color: #595959;
+            --accent-color: #8DA988;
+            --accent-light: #E3EAD8;
+            --highlight: #D4A5A5;
+            --font-main: 'Zen Maru Gothic', sans-serif;
+            --delete-btn: #FF6B6B;
+            --edit-btn: #F4D35E; /* 鵝黃色編輯按鈕 */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding-bottom: 110px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            padding: 25px 20px 15px 20px;
+            background: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        h1 { font-size: 1.6rem; color: var(--accent-color); font-weight: 700; letter-spacing: 0.5px; }
+        h2 { font-size: 1rem; color: #999; font-weight: 400; margin-top: 5px; }
+
+        .widget-row { display: flex; gap: 12px; padding: 0 20px; margin-bottom: 25px; }
+        .widget {
+            flex: 1; background: #fff; border-radius: 16px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            display: flex; flex-direction: column; justify-content: center; position: relative;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .widget-label { font-size: 0.75rem; color: #aaa; margin-bottom: 4px; font-weight: 500; }
+        .widget-val { font-size: 1.2rem; font-weight: 700; color: #444; }
+        .widget-sub { font-size: 0.75rem; color: var(--accent-color); margin-top: 4px; }
+        .weather-icon-img { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 42px; opacity: 0.8; }
+
+        /* Card Styles */
+        .card-wrapper { position: relative; margin-bottom: 20px; padding: 0 20px; }
+        .card {
+            background: var(--card-bg); border-radius: 18px; padding: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #f5f5f5;
+            position: relative; z-index: 2; transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .card-img {
+            width: 100%; height: 200px; object-fit: cover; border-radius: 12px;
+            margin-bottom: 12px; background-color: #eee;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        .header-left { display: flex; align-items: center; gap: 8px; }
+        .card-time {
+            font-weight: 700; color: var(--accent-color); font-size: 0.85rem;
+            display: inline-block; background: var(--accent-light);
+            padding: 5px 12px; border-radius: 15px;
+        }
+        
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .map-link { font-size: 0.95rem; color: #5784BA; text-decoration: none; font-weight: 700; display: flex; align-items: center; }
+        .map-link::after { content: '↗'; font-size: 1.1em; margin-left: 3px; }
+        
+        /* 編輯按鈕 */
+        .edit-icon { cursor: pointer; font-size: 1.1rem; color: #ccc; transition: 0.2s; }
+        .edit-icon:active { color: var(--accent-color); transform: scale(0.9); }
+
+        .card-title { font-size: 1.25rem; font-weight: 700; color: #333; margin-bottom: 8px; line-height: 1.3; }
+        .card-description { font-size: 0.95rem; color: #666; padding-top: 12px; border-top: 1px dashed #eee; margin-top: 12px; line-height: 1.6; }
+        .card-note { font-size: 0.85rem; color: var(--highlight); background: #fff5f5; padding: 5px 10px; border-radius: 8px; margin-top: 10px; display: inline-block; font-weight: 500; }
+
+        .delete-bg {
+            position: absolute; top: 0; right: 20px; bottom: 0; width: 80px;
+            background-color: var(--delete-btn); border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 0.95rem; z-index: 1;
+        }
+
+        .date-header { display: flex; align-items: center; margin: 30px 20px 15px 20px; }
+        .date-badge { background-color: var(--accent-color); color: white; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; margin-right: 12px; box-shadow: 0 2px 8px rgba(141, 169, 136, 0.3); }
+        .date-day { color: #888; font-size: 0.95rem; font-weight: 500; }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-bar {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 450px; background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px); border-radius: 40px; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); z-index: 500; border: 1px solid rgba(255,255,255,0.6);
+        }
+        .nav-item {
+            text-align: center; color: #aaa; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s; padding: 10px 16px; border-radius: 30px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .nav-item.active { color: #fff; background-color: var(--accent-color); box-shadow: 0 4px 15px rgba(141, 169, 136, 0.4); transform: translateY(-2px); }
+        .nav-item.day-tab .nav-icon { display: none; }
+        .nav-item.day-tab { font-size: 0.95rem; }
+        .nav-item:not(.day-tab) .nav-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+        .nav-item:not(.day-tab) { padding: 6px 14px; }
+
+        .fab-btn {
+            position: fixed; bottom: 110px; right: 25px; width: 55px; height: 55px;
+            background: linear-gradient(135deg, var(--accent-color), #7a9675);
+            color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; box-shadow: 0 6px 20px rgba(141, 169, 136, 0.5); cursor: pointer; z-index: 400; transition: transform 0.2s;
+        }
+        .fab-btn:active { transform: scale(0.92); }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+        }
+        .modal { background: #fff; width: 88%; max-width: 360px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .modal h3 { margin-bottom: 20px; color: var(--text-color); text-align: center; }
+        .modal-label { display: block; font-size: 0.85rem; color: #999; margin-bottom: 5px; margin-top: 10px; }
+        .modal input, .modal select, .modal textarea {
+            width: 100%; padding: 10px 12px; margin-bottom: 5px; border: 1px solid #eee;
+            border-radius: 10px; font-family: var(--font-main); font-size: 1rem; background: #f9f9f9;
+        }
+        .modal-btns { display: flex; gap: 12px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; }
+        .btn-cancel { background: #f0f0f0; color: #777; }
+        .btn-confirm { background: var(--accent-color); color: white; }
+
+        .memo-list { padding-left: 20px; color: #666; font-size: 0.95rem; line-height: 1.7; }
+        .memo-list li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Vietnam Trip</h1>
+        <h2>2025 Dec 25 - Dec 28</h2>
+    </header>
+
+    <div class="widget-row">
+        <div class="widget">
+            <span class="widget-label">即時匯率 (TWD:VND)</span>
+            <span class="widget-val" id="rate-display">載入中...</span>
+            <span class="widget-sub" id="rate-time">更新中...</span>
+        </div>
+        <div class="widget">
+            <span class="widget-label">Ho Chi Minh</span>
+            <span class="widget-val" id="weather-temp">--°C</span>
+            <span class="widget-sub" id="weather-desc">載入中...</span>
+            <img id="weather-icon" class="weather-icon-img" src="" alt="" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        function createCardHTML(title, time, note, desc, img, link) {
+            const safeTitle = title.replace(/"/g, '&quot;');
+            const safeNote = note ? note.replace(/"/g, '&quot;') : '';
+            const safeDesc = desc ? desc.replace(/"/g, '&quot;') : '';
+            const safeTime = time ? time.replace(/"/g, '&quot;') : '行程';
+            const safeImg = img || '';
+            const safeLink = link || `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(title)}`;
+
+            const imgHTML = safeImg ? `<img src="${safeImg}" class="card-img" alt="${safeTitle}">` : '';
+            
+            return `
+            <div class="delete-bg" onclick="deleteItem(this)">刪除</div>
+            <div class="card" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+                <div class="card-header">
+                    <div class="header-left">
+                        <span class="card-time">${safeTime}</span>
+                    </div>
+                    <div class="header-right">
+                        <a href="${safeLink}" target="_blank" class="map-link">導航</a>
+                        <span class="edit-icon" onclick="openEditModal(this)">✎</span>
+                    </div>
+                </div>
+                ${imgHTML}
+                <div class="card-title">${safeTitle}</div>
+                <div class="card-note">${safeNote}</div>
+                <div class="card-description">${safeDesc}</div>
+                <input type="hidden" class="raw-img" value="${safeImg}">
+                <input type="hidden" class="raw-link" value="${safeLink}">
+            </div>`;
+        }
+    </script>
+
+    <div id="tab1" class="tab-content active">
+        <div class="date-header"><span class="date-badge">Day 1</span><span class="date-day">12/25 週四 · 出發</span></div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('Taichung Airport (RMQ)', '13:45 報到', '航班 VJ853 / 15:45 起飛', '請預留充足時間報到。越捷航空櫃檯通常會在起飛前 2 小時開放。', '', 'https://www.google.com/maps/search/?api=1&query=Taichung+International+Airport'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('新山一國際機場 (SGN)', '18:15 抵達', '入境、領取行李', '建議在機場換匯、購買網卡，並使用 Grab App 叫車前往市區飯店。', '', 'https://www.google.com/maps/search/?api=1&query=Tan+Son+Nhat+International+Airport'))</script>
+        </div>
+    </div>
+
+    <div id="tab2" class="tab-content">
+        <div class="date-header"><span class="date-badge">Day 2</span><span class="date-day">12/26 週五 · 市區巡禮</span></div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('濱城市場 (Chợ Bến Thành)', '10:00', '營業時間 8:00-18:00 / 步行 12 分', '胡志明市的地標市場，適合購買紀念品、咖啡和乾貨。記得要殺價！', 'https://lilystravelagency.tw/wp-content/uploads/2024/10/THUMB-SAKOS-6-1.jpg', 'https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('L\'Entrecote - Social Meating', '12:00 午餐', '法式牛排', '胡志明市知名牛排館，以簡單、高品質的牛排炸薯條聞名，醬汁是一絕。', 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/e4/6c/88/caption.jpg?w=1100&h=1100&s=1', 'https://www.google.com/maps/search/?api=1&query=L'Entrecote+Social+Meating+63+Dong+Du'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('咖啡公寓 (The Cafe Apartment)', '14:00', '步行 3 分 / 42 Đ. Tôn Thất Thiệp 廣場旁', '整棟舊公寓裡塞滿了各式各樣的特色咖啡廳和商店，可以找一家景觀最好的咖啡店休息。', 'https://tsnio.com/wp-content/uploads/20170508140651_71.jpg', 'https://www.google.com/maps/search/?api=1&query=The+Cafe+Apartment+42+Nguyen+Hue'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('Pizza 4P\'s Saigon Centre', '17:30 晚餐', '位於 Saigon Centre 百貨內', '胡志明市的網紅披薩店，以自製起司和融合日式風味的披薩聞名，建議提前訂位。', 'https://media-cdn.tripadvisor.com/media/photo-s/0f/85/26/7a/soy-garlic-beef.jpg', 'https://www.google.com/maps/search/?api=1&query=Pizza+4P's+Saigon+Centre'))</script>
+        </div>
+    </div>
+
+    <div id="tab3" class="tab-content">
+        <div class="date-header"><span class="date-badge">Day 3</span><span class="date-day">12/27 週六 · 歷史與美食</span></div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('耶穌聖心堂 (粉紅教堂)', '09:30', '開放時間: 8:00-11:00 / 14:00-17:00', '整個外觀漆成夢幻粉紅色，是胡志明市最具特色的地標之一。拍照取景熱點。', 'https://rainieis.tw/wp-content/uploads/20180824104804_3.jpg', 'https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('獨立宮 (Independence Palace)', '12:15', '車程約 10 分鐘', '越南歷史的見證地，越戰結束時北越坦克撞進大門的歷史場景就在此發生。', 'https://lilystravelagency.tw/wp-content/uploads/2024/12/20190923_Independence_Palace-10-1-1.jpg', 'https://www.google.com/maps/search/?api=1&query=Independence+Palace'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('Cong Caphe (越共咖啡)', '午茶', '分店眾多，可選擇市區分店', '以越戰時期軍事風格為主題的咖啡廳。必點**椰子咖啡冰沙 (Cốt Dừa Cà Phê)**。', 'https://hips.hearstapps.com/hmg-prod/images/main-669df41ebb8e3.png?crop=0.492xw:0.984xh;0.508xw,0.0160xh&resize=640:*', 'https://www.google.com/maps/search/?api=1&query=Cong+Caphe+274+Hai+Ba+Trung'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('Phở Hòa Pasteur', '晚餐', '知名河粉老店', '胡志明市最著名的河粉店之一，湯頭濃郁，配上新鮮的牛肉片是經典越式美味。', 'https://axwwgrkdco.cloudimg.io/v7/__gmpics3__/a5740eb6c7614a07817fc6a8c13a6390.jpeg?width=1000', 'https://www.google.com/maps/search/?api=1&query=Pho+Hoa+Pasteur+260C+Pasteur'))</script>
+        </div>
+    </div>
+
+    <div id="tab4" class="tab-content">
+        <div class="date-header"><span class="date-badge">Day 4</span><span class="date-day">12/28 週日 · 返程</span></div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('飯店退房', '07:00', '請確認所有行李並搭乘 Grab 前往機場。', '', '', 'https://www.google.com/maps/search/?api=1&query=IconSphere+Hotel+39+Nam+Ky+Khoi+Nghia'))</script>
+        </div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('Ho Chi Minh Airport (SGN)', '08:25 報到', '航班 VJ852 / 10:25 起飛', '國際線建議至少提前 2 小時抵達機場。', '', 'https://www.google.com/maps/search/?api=1&query=Tan+Son+Nhat+International+Airport'))</script>
+        </div>
+    </div>
+
+    <div id="tab5" class="tab-content">
+        <div class="date-header"><span class="date-badge">Hotel</span><span class="date-day">住宿資訊</span></div>
+        <div class="card-wrapper" onclick="resetSwipe(this)">
+            <script>document.write(createCardHTML('IconSphere Hotel', 'IconSphere Hotel', '請記住房間號碼和 Wi-Fi 密碼。', '飯店位於市中心，鄰近主要景點。Check-in 14:00 / Check-out 12:00', 'https://pix8.agoda.net/hotelImages/76466896/1184787044/c9213450d28c4cdf6c4da64280197488.png?ce=2&s=1024x', 'https://www.google.com/maps/search/?api=1&query=IconSphere+Hotel+39+Nam+Ky+Khoi+Nghia'))</script>
+        </div>
+    </div>
+
+    <div id="tab6" class="tab-content">
+        <div class="date-header"><span class="date-badge">Memo</span><span class="date-day">行前準備與備註</span></div>
+        <div class="card">
+            <div class="card-title" style="margin-bottom: 15px;">重要事項</div>
+            <ul class="memo-list">
+                <li>下載 Grab App (當地叫車)</li>
+                <li>檢查電子簽證 (E-Visa) & 護照</li>
+                <li>電壓 220V (插座通用)</li>
+                <li>準備越南盾 (VND) / 美金</li>
+            </ul>
+        </div>
+        <div class="date-header"><span class="date-badge">Flight</span><span class="date-day">航班詳細資訊</span></div>
+        <div class="card">
+            <div class="card-title">去程 VJ853</div>
+            <div class="card-note">台中 (RMQ) 15:45 ➝ 胡志明 (SGN) 18:15</div>
+        </div>
+        <div class="card" style="margin-top:15px;">
+            <div class="card-title">回程 VJ852</div>
+            <div class="card-note">胡志明 (SGN) 10:25 ➝ 台中 (RMQ) 14:45</div>
+        </div>
+    </div>
+
+    <div class="fab-btn" onclick="openAddModal()">+</div>
+
+    <div class="modal-overlay" id="universalModal">
+        <div class="modal">
+            <h3 id="modal-title">新增行程</h3>
+            
+            <label class="modal-label">景點名稱</label>
+            <input type="text" id="inp-title" placeholder="例如: 按摩">
+            
+            <label class="modal-label">時間</label>
+            <input type="text" id="inp-time" placeholder="例如: 14:00">
+            
+            <label class="modal-label">備註 / 簡短說明</label>
+            <input type="text" id="inp-note" placeholder="例如: 記得預約">
+            
+            <label class="modal-label">詳細介紹</label>
+            <textarea id="inp-desc" rows="3" style="width:100%; border:1px solid #eee; border-radius:10px; padding:10px; font-family:inherit; background:#f9f9f9;" placeholder="詳細資訊..."></textarea>
+            
+            <label class="modal-label">照片連結 (選填)</label>
+            <input type="text" id="inp-img" placeholder="https://...">
+
+            <div id="position-group">
+                <label class="modal-label" style="color:var(--accent-color); font-weight:bold;">新增位置</label>
+                <select id="inp-position">
+                    </select>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-confirm" onclick="confirmAction()">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item day-tab active" onclick="switchTab('tab1', this)">Day 1</div>
+        <div class="nav-item day-tab" onclick="switchTab('tab2', this)">Day 2</div>
+        <div class="nav-item day-tab" onclick="switchTab('tab3', this)">Day 3</div>
+        <div class="nav-item day-tab" onclick="switchTab('tab4', this)">Day 4</div>
+        <div class="nav-item" onclick="switchTab('tab5', this)"><span class="nav-icon">🛏️</span>住宿</div>
+        <div class="nav-item" onclick="switchTab('tab6', this)"><span class="nav-icon">📋</span>其他</div>
+    </nav>
+</div>
+
+<script>
+    // 1. Data Fetching
+    async function fetchData() {
+        try {
+            const r = await fetch('https://api.exchangerate-api.com/v4/latest/TWD');
+            const d = await r.json();
+            document.getElementById('rate-display').innerText = `1 : ${d.rates.VND.toFixed(1)}`;
+            const n = new Date();
+            document.getElementById('rate-time').innerText = `更新於 ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;
+        } catch(e) { document.getElementById('rate-display').innerText = "連線失敗"; }
+
+        try {
+            const w = await fetch('https://api.open-meteo.com/v1/forecast?latitude=10.82&longitude=106.63&current_weather=true&timezone=auto');
+            const wd = await w.json();
+            const t = wd.current_weather.temperature;
+            const c = wd.current_weather.weathercode;
+            document.getElementById('weather-temp').innerText = `${t}°C`;
+            let ds="晴天", u="";
+            if(c<=3){ds="晴時多雲";u="https://cdn-icons-png.flaticon.com/512/1163/1163661.png";}
+            else if(c<=48){ds="多雲";u="https://cdn-icons-png.flaticon.com/512/1163/1163624.png";}
+            else if(c<=67){ds="有雨";u="https://cdn-icons-png.flaticon.com/512/1163/1163657.png";}
+            else if(c<=99){ds="雷陣雨";u="https://cdn-icons-png.flaticon.com/512/1163/1163636.png";}
+            document.getElementById('weather-desc').innerText = ds;
+            const i = document.getElementById('weather-icon'); i.src=u; i.style.display='block';
+        } catch(e) { document.getElementById('weather-desc').innerText = "無法載入"; }
+    }
+    fetchData();
+
+    // 2. Tab Logic
+    function switchTab(id, el) {
+        document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+        window.scrollTo(0,0);
+        document.querySelectorAll('.card').forEach(c=>c.style.transform='translateX(0)');
+    }
+    document.addEventListener('DOMContentLoaded', ()=>{ if(document.querySelector('.nav-bar .nav-item')) switchTab('tab1', document.querySelector('.nav-bar .nav-item')); });
+
+    // 3. Swipe Logic
+    let tsX=0, cCard=null;
+    function touchStart(e) { tsX=e.changedTouches[0].screenX; cCard=e.currentTarget; document.querySelectorAll('.card').forEach(c=>{if(c!==cCard)c.style.transform='translateX(0)'}); }
+    function touchMove(e) { if(!cCard)return; let diff=e.changedTouches[0].screenX-tsX; if(diff<0 && diff>-100) cCard.style.transform=`translateX(${diff}px)`; }
+    function touchEnd(e) { if(!cCard)return; let diff=e.changedTouches[0].screenX-tsX; if(diff<-60) cCard.style.transform='translateX(-80px)'; else cCard.style.transform='translateX(0)'; }
+    function resetSwipe(w) { const c=w.querySelector('.card'); if(c && c.style.transform!=='translateX(0px)') c.style.transform='translateX(0)'; }
+    function deleteItem(btn) { if(confirm("確定要刪除此行程嗎？")) { const w=btn.parentElement; w.style.opacity='0'; setTimeout(()=>w.remove(),300); } else { btn.parentElement.querySelector('.card').style.transform='translateX(0)'; } }
+
+    // 4. Modal & CRUD Logic
+    let isEditing = false;
+    let editTargetWrapper = null;
+
+    function openAddModal() {
+        isEditing = false;
+        document.getElementById('modal-title').innerText = "新增行程";
+        document.getElementById('position-group').style.display = 'block';
+        
+        // Clear inputs
+        ['title','time','note','desc','img'].forEach(id => document.getElementById('inp-'+id).value = '');
+        
+        // Populate Position Select
+        const activeTab = document.querySelector('.tab-content.active');
+        const select = document.getElementById('inp-position');
+        select.innerHTML = '<option value="top">放在最上方</option>';
+        
+        const existingItems = activeTab.querySelectorAll('.card-wrapper');
+        existingItems.forEach((item, index) => {
+            const title = item.querySelector('.card-title').innerText;
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `放在 "${title.substring(0,10)}..." 之後`;
+            select.appendChild(opt);
+        });
+
+        document.getElementById('universalModal').style.display = 'flex';
+    }
+
+    function openEditModal(btn) {
+        isEditing = true;
+        document.getElementById('modal-title').innerText = "編輯行程";
+        document.getElementById('position-group').style.display = 'none'; // Hide position in edit mode
+        
+        // Find the card wrapper
+        editTargetWrapper = btn.closest('.card-wrapper');
+        const card = editTargetWrapper.querySelector('.card');
+        
+        // Load data
+        document.getElementById('inp-title').value = card.querySelector('.card-title').innerText;
+        document.getElementById('inp-time').value = card.querySelector('.card-time').innerText;
+        document.getElementById('inp-note').value = card.querySelector('.card-note').innerText;
+        document.getElementById('inp-desc').value = card.querySelector('.card-description').innerText;
+        
+        // Handle hidden inputs for img/link
+        const rawImg = card.querySelector('.raw-img') ? card.querySelector('.raw-img').value : '';
+        document.getElementById('inp-img').value = rawImg;
+
+        document.getElementById('universalModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('universalModal').style.display = 'none'; }
+
+    function confirmAction() {
+        const title = document.getElementById('inp-title').value;
+        const time = document.getElementById('inp-time').value;
+        const note = document.getElementById('inp-note').value;
+        const desc = document.getElementById('inp-desc').value;
+        const img = document.getElementById('inp-img').value;
+        
+        if(!title) { alert('請輸入標題'); return; }
+
+        // Use the helper function to generate HTML
+        // Note: For link, we default to Google Search if editing and no specific link logic added, or keep existing.
+        // For simplicity in this demo, new items get auto-link, edited items keep existing or regenerate.
+        let link = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(title)}`;
+        if(isEditing) {
+             const oldLink = editTargetWrapper.querySelector('.raw-link') ? editTargetWrapper.querySelector('.raw-link').value : link;
+             // If title changed, maybe update link? Let's just update it for smart behavior.
+             link = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(title)}`;
+        }
+
+        const newHTML = createCardHTML(title, time, note, desc, img, link);
+
+        if (isEditing) {
+            // Update existing
+            editTargetWrapper.innerHTML = newHTML;
+            // Restore swipe handler manually since innerHTML wiped it
+            editTargetWrapper.onclick = function(){ resetSwipe(this) };
+        } else {
+            // Create New
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            wrapper.onclick = function(){ resetSwipe(this) };
+            wrapper.innerHTML = newHTML;
+
+            const activeTab = document.querySelector('.tab-content.active');
+            const pos = document.getElementById('inp-position').value;
+            const existingItems = activeTab.querySelectorAll('.card-wrapper');
+
+            if (pos === 'top') {
+                // Insert after header (first child is header, or we prepend to container if no cards)
+                // Safest: insert before the first card-wrapper
+                if(existingItems.length > 0) {
+                    activeTab.insertBefore(wrapper, existingItems[0]);
+                } else {
+                    activeTab.appendChild(wrapper);
+                }
+            } else {
+                // Insert after specific index
+                const refNode = existingItems[parseInt(pos)];
+                refNode.parentNode.insertBefore(wrapper, refNode.nextSibling);
+            }
+        }
+
+        closeModal();
+    }
+</script>
+</body>
+</html>
